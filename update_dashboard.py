@@ -88,9 +88,11 @@ def update_dashboard(html_path: Path, data: list) -> None:
         # If anything goes wrong, leave the existing date in place
         pass
 
-    output_path = html_path.with_name('dashboard_updated.html')
-    output_path.write_text(updated, encoding='utf-8')
-    print(f"Updated dashboard written to {output_path}")
+    # Overwrite the original HTML file. This ensures that the live
+    # dashboard is updated in place. Previously we wrote to
+    # ``dashboard_updated.html``, but that file was not served by GitHub Pages.
+    html_path.write_text(updated, encoding='utf-8')
+    print(f"Updated dashboard written to {html_path}")
 
 
 def main():
