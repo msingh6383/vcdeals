@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daily Tech VC Deals Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f7f9fc;
+      color: #333;
+    }
+    header {
+      background: #89b3dd; /* pastel blue */
+      color: #fff;
+      padding: 1rem;
+      text-align: center;
+    }
+    h1 {
+      margin: 0;
+    }
+    .container {
+      padding: 1rem;
+      max-width: 1200px;
+      margin: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background: #d9e7f7; /* pastel table header */
+      font-weight: bold;
+      cursor: pointer; /* indicate sortable columns */
+      user-select: none;
+    }
+    tr:nth-child(even) {
+      background: #f5f8fc; /* lighter stripe for even rows */
+    }
+    .chart {
+      margin-top: 2rem;
+      text-align: center;
+    }
+    .chart img {
+      max-width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Daily Tech VC Deals (July 29 2025)</h1>
+  </header>
+  <div class="container">
+    <p>This dashboard summarises venture capital deals announced on July 29 2025 (with a few from the previous day for context). The data is embedded in this page and can be filtered client‑side.</p>
+
+    <!-- Filter controls -->
+    <div id="filters" style="margin-bottom:1rem; display:flex; flex-wrap:wrap; gap:1rem; align-items:flex-end;">
+      <div>
+        <label for="searchInput" style="font-weight:bold;">Search:</label><br />
+        <input type="text" id="searchInput" placeholder="Type to search by company, round or investor" style="padding:0.5rem; width:250px;" />
+      </div>
+      <div>
+        <label for="roundSelect" style="font-weight:bold;">Filter by round:</label><br />
+        <select id="roundSelect" style="padding:0.5rem; width:180px;">
+          <option value="">All rounds</option>
+        </select>
+      </div>
+    </div>
+    <table id="deals-table">
+      <thead>
+        <tr>
+          <th data-key="Company">Company</th>
+          <th data-key="Date">Date</th>
+          <th data-key="Location">Location</th>
+          <th data-key="Round">Round</th>
+          <th data-key="Amount ($M)">Amount (M$)</th>
+          <th data-key="Lead Investor">Lead Investor</th>
+          <th data-key="Other Investors">Other Investors</th>
+          <th data-key="Description">Description</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="chart">
+      <h2>Funding Amounts</h2>
+      <img src="vc_deals_chart.png" alt="Funding amounts bar chart" />
+    </div>
+  </div>
+
+  <script>
+    // Embedded deal data. Update this array to refresh the dashboard.
+    const data = [
+      {"Company":"Promptfoo","Date":"2025-07-29","Location":"San Francisco, CA","Round":"Series A","Amount ($M)":18.4,"Lead Investor":"Insight Partners","Other Investors":"Andreessen Horowitz","Description":"Open-source AI security testing platform"},
+      {"Company":"lakeFS","Date":"2025-07-29","Location":"New York, NY","Round":"Growth Round","Amount ($M)":20.0,"Lead Investor":"Maor Investments","Other Investors":"Dell Technologies Capital; Norwest; Zeev Ventures","Description":"Git-for-data version control system"},
+      {"Company":"Reveal Technology","Date":"2025-07-29","Location":"Bozeman, MT","Round":"Series B","Amount ($M)":30.0,"Lead Investor":"Ballistic Ventures","Other Investors":"defy.vc; Booz Allen Ventures; Shield Capital; Next Frontier Capital; Madison Valley Partners","Description":"Defense tech company building offline intelligence platforms (Farsight & Identifi)"},
+      {"Company":"Hightouch","Date":"2025-07-29","Location":"San Francisco, CA","Round":"Series C extension","Amount ($M)":null,"Lead Investor":"Snowflake Ventures & Capital One Ventures","Other Investors":null,"Description":"Composable CDP and AI Decisioning platform for marketers"},
+      {"Company":"[cafeteria]","Date":"2025-07-29","Location":"New York, NY","Round":"Growth Round","Amount ($M)":3.0,"Lead Investor":"Marquee Ventures","Other Investors":"Listen Ventures; Thayer Investment Partners","Description":"Consumer insights platform for Gen Z and Alpha to earn for private brand insights"},
+      {"Company":"Salient","Date":"2025-07-29","Location":"San Francisco, CA","Round":"Funding Round","Amount ($M)":60.0,"Lead Investor":"Andreessen Horowitz","Other Investors":"Matrix Partners; Michael Ovitz; Y Combinator","Description":"AI-powered financial services technology"},
+      {"Company":"Overwatch Imaging","Date":"2025-07-29","Location":"Hood River, OR","Round":"Funding Round","Amount ($M)":6.0,"Lead Investor":"Squadra Ventures","Other Investors":"SEMCAP AI; Elevate Oregon Venture Direct Fund; Edo Capital","Description":"Airborne imaging systems & intelligence automation software"},
+      {"Company":"Sparrow","Date":"2025-07-29","Location":"San Francisco, CA","Round":"Series B","Amount ($M)":35.0,"Lead Investor":"SLW","Other Investors":null,"Description":"Employee leave management platform"},
+      {"Company":"ARTBIO","Date":"2025-07-29","Location":"Cambridge, MA","Round":"Series B","Amount ($M)":132.0,"Lead Investor":"Sofinnova Investments; B Capital; life sciences fund","Other Investors":"F‑Prime; Omega Funds; Third Rock Ventures; Qatar Investment Authority; Alexandria Venture Investments","Description":"Clinical‑stage radiopharmaceutical company developing alpha radioligand therapies (ARTs)"},
+      {"Company":"TakeUp","Date":"2025-07-29","Location":"San Francisco, CA","Round":"Series A","Amount ($M)":11.0,"Lead Investor":"1848 Ventures","Other Investors":null,"Description":"AI‑powered revenue optimization platform for independent stays"},
+      {"Company":"E2B","Date":"2025-07-29","Location":"San Francisco, CA","Round":"Series A","Amount ($M)":21.0,"Lead Investor":"Insight Partners","Other Investors":"Decibel; Sunflower Capital; Kaya; angels incl. Scott Johnston","Description":"Open‑source cloud infrastructure for AI agents"},
+      {"Company":"Lumana","Date":"2025-07-29","Location":"Los Gatos, CA","Round":"Series A","Amount ($M)":40.0,"Lead Investor":"Wing Venture Capital","Other Investors":"Norwest; S Capital","Description":"AI video security solutions using vision language models"},
+      {"Company":"Arbital Health","Date":"2025-07-29","Location":"San Francisco, CA","Round":"Series B","Amount ($M)":31.0,"Lead Investor":"Valtruis","Other Investors":"Transformation Capital; Shaper Capital; Healthy Ventures","Description":"Healthcare technology for risk‑based contract management and AI‑powered platform"},
+      {"Company":"Car IQ","Date":"2025-07-29","Location":"San Francisco, CA","Round":"Growth Financing","Amount ($M)":null,"Lead Investor":"FT Partners (advisor)","Other Investors":null,"Description":"Vehicle payment technology enabling autonomous payments"},
+      {"Company":"Seal Security","Date":"2025-07-29","Location":"New York, NY","Round":"Series A","Amount ($M)":13.0,"Lead Investor":"Vertex Israel","Other Investors":"More Investments; SBI Group; CCL","Description":"Application security platform that curates vulnerability‑free open source components"},
+      {"Company":"Dropzone AI","Date":"2025-07-28","Location":"Seattle, WA","Round":"Series B","Amount ($M)":37.0,"Lead Investor":"Theory Ventures","Other Investors":"Madrona; Decibel Ventures; Pioneer Square Labs; IQT","Description":"AI SOC analysts for security operations centers"},
+      {"Company":"Positron AI","Date":"2025-07-28","Location":"Reno, NV","Round":"Series A","Amount ($M)":51.6,"Lead Investor":"Valor Equity Partners; Atreides Management; DFJ Growth","Other Investors":"Flume Ventures; Resilience Reserve; 1517 Fund; Unless","Description":"American‑made semiconductors and inference hardware"},
+      {"Company":"Fable Security","Date":"2025-07-28","Location":"San Francisco, CA","Round":"Seed + Series A","Amount ($M)":31.0,"Lead Investor":"Greylock Partners; Redpoint Ventures","Other Investors":null,"Description":"Human risk management platform"},
+      {"Company":"Pluristyx","Date":"2025-07-28","Location":"Seattle, WA","Round":"Funding Round","Amount ($M)":null,"Lead Investor":"BioLife Solutions","Other Investors":"BroadOak Capital Partners","Description":"iPSC technologies and gene editing solutions"},
+      {"Company":"BlinkOps","Date":"2025-07-28","Location":"San Francisco, CA","Round":"Series B","Amount ($M)":50.0,"Lead Investor":"O.G. Venture Partners","Other Investors":"Lightspeed Venture Partners; Hetz Ventures; Vertex Growth","Description":"IT automation and operations platform"}
+    ];
+
+    /**
+     * Render the table body with the provided array of deal objects.
+     * @param {Array<Object>} rows Array of deal objects to display
+     */
+    function renderTable(rows) {
+      const tbody = document.querySelector('#deals-table tbody');
+      tbody.innerHTML = '';
+      rows.forEach(item => {
+        const tr = document.createElement('tr');
+        [
+          'Company', 'Date', 'Location', 'Round', 'Amount ($M)',
+          'Lead Investor', 'Other Investors', 'Description'
+        ].forEach(key => {
+          const td = document.createElement('td');
+          const value = item[key];
+          td.textContent = (value !== null && value !== undefined) ? value : '';
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+    }
+
+    /**
+     * Populate the round select with unique round types from the dataset.
+     */
+    function populateRoundOptions() {
+      const roundSelect = document.getElementById('roundSelect');
+      const rounds = [...new Set(data.map(item => item['Round']).filter(r => r && r.trim() !== ''))];
+      rounds.sort();
+      rounds.forEach(round => {
+        const option = document.createElement('option');
+        option.value = round;
+        option.textContent = round;
+        roundSelect.appendChild(option);
+      });
+    }
+
+    /**
+     * Filter the dataset based on search input and round selection and re-render the table.
+     */
+    function filterTable() {
+      const query = document.getElementById('searchInput').value.toLowerCase().trim();
+      const selectedRound = document.getElementById('roundSelect').value;
+      const filtered = data.filter(item => {
+        // Filter by round if selected
+        if (selectedRound && item['Round'] !== selectedRound) return false;
+        // Filter by search query across company, lead investor, other investors and round
+        if (query) {
+          const haystack = (
+            (item['Company'] || '') + ' ' +
+            (item['Lead Investor'] || '') + ' ' +
+            (item['Other Investors'] || '') + ' ' +
+            (item['Round'] || '')
+          ).toLowerCase();
+          return haystack.includes(query);
+        }
+        return true;
+      });
+      // Sort the filtered rows before rendering
+      const sorted = sortRows(filtered);
+      renderTable(sorted);
+    }
+
+    // Initialize
+    window.addEventListener('DOMContentLoaded', () => {
+      populateRoundOptions();
+      // Render full table initially
+      renderTable(data);
+      // Add event listeners for filtering
+      document.getElementById('searchInput').addEventListener('input', filterTable);
+      document.getElementById('roundSelect').addEventListener('change', filterTable);
+      // Add event listeners for sorting when clicking on table headers
+      const headers = document.querySelectorAll('#deals-table th[data-key]');
+      headers.forEach(th => {
+        th.addEventListener('click', () => {
+          const key = th.getAttribute('data-key');
+          if (currentSort.key === key) {
+            // Toggle sort direction
+            currentSort.asc = !currentSort.asc;
+          } else {
+            currentSort.key = key;
+            currentSort.asc = true;
+          }
+          filterTable();
+        });
+      });
+    });
+
+    // Keep track of current sort column and direction
+    const currentSort = { key: null, asc: true };
+
+    /**
+     * Sort rows based on the currentSort settings.
+     * Performs numeric comparison for the Amount column and lexicographic for others.
+     */
+    function sortRows(rows) {
+      if (!currentSort.key) return rows;
+      const key = currentSort.key;
+      const asc = currentSort.asc;
+      return rows.slice().sort((a, b) => {
+        let aVal = a[key];
+        let bVal = b[key];
+        // Treat null/undefined as empty string
+        if (aVal === null || aVal === undefined) aVal = '';
+        if (bVal === null || bVal === undefined) bVal = '';
+        // Numeric sort for Amount
+        if (key === 'Amount ($M)') {
+          aVal = aVal === '' ? 0 : Number(aVal);
+          bVal = bVal === '' ? 0 : Number(bVal);
+          return asc ? aVal - bVal : bVal - aVal;
+        }
+        // String comparison, case insensitive
+        const comp = String(aVal).toLowerCase().localeCompare(String(bVal).toLowerCase());
+        return asc ? comp : -comp;
+      });
+    }
+  </script>
+</body>
+</html>
