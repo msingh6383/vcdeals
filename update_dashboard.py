@@ -35,7 +35,9 @@ def parse_csv(csv_path: Path) -> list:
             deal = {
                 'Company': row.get('Company'),
                 'Date': row.get('Date'),
+                'Time': row.get('Time') or '',
                 'Location': row.get('Location'),
+                'Industry': row.get('Industry') or '',
                 'Round': row.get('Round'),
                 'Amount ($M)': float(row['Amount ($M)']) if row.get('Amount ($M)') else None,
                 'Lead Investor': row.get('Lead Investor'),
@@ -49,6 +51,22 @@ def parse_csv(csv_path: Path) -> list:
 def update_dashboard(html_path: Path, data: list) -> None:
     """Replace the data array in the dashboard with the provided data."""
     html_text = html_path.read_text(encoding='utf-8')
+
+    # Assign a timestamp (HH:MM) to all deals representing when this update is run.
+    try:
+        from datetime import datetime
+        # Try to convert to America/Los_Angeles; fallback to local time if zoneinfo isn't available
+        try:
+            from zoneinfo import ZoneInfo
+            update_time = datetime.now(tz=ZoneInfo('America/Los_Angeles')).strftime('%H:%M')
+        except Exception:
+            update_time = datetime.now().strftime('%H:%M')
+        for row in data:
+            # Only set Time if it's missing or blank
+            if not row.get('Time'):
+                row['Time'] = update_time
+    except Exception:
+        pass
     json_str = json.dumps(data, indent=2, ensure_ascii=False)
     # Replace the data array in the script section
     pattern = r"const data = \[[\s\S]*?\];"
@@ -64,7 +82,7 @@ def update_dashboard(html_path: Path, data: list) -> None:
         dt = datetime.strptime(latest, '%Y-%m-%d')
         # Format with non‑breaking spaces so the date doesn't wrap
         formatted_date = dt.strftime('%B\u00a0%d\u00a0%Y')
-        h1_pattern = r'(Daily Tech VC Deals \()([^)]*)(\))'
+        h1_pattern = r"(Meera's Daily Tech VC Deals \()([^)]*)(\))"
         updated = re.sub(h1_pattern, lambda m: m.group(1) + formatted_date + m.group(3), updated)
     except Exception as exc:
         # If anything goes wrong, leave the existing date in place
