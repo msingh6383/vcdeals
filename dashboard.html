@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Daily Tech VC Deals Dashboard</title>
-  <style>
+    <!-- Load a Google Font for a more polished look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Poppins', sans-serif;
       margin: 0;
       padding: 0;
       background: #f7f9fc;
@@ -57,10 +62,10 @@
 </head>
 <body>
   <header>
-    <h1>Daily Tech VC Deals (July 29 2025)</h1>
+    <h1>Meera's Daily Tech VC Deals (July 29 2025)</h1>
   </header>
   <div class="container">
-    <p>This dashboard summarises venture capital deals announced on July 29 2025 (with a few from the previous day for context). The data is embedded in this page and can be filtered client‑side.</p>
+    <p>This dashboard summarises venture capital deals announced on July 29 2025 (with a few from the previous day for context). Use the filters to search and sort the data.</p>
 
     <!-- Filter controls -->
     <div id="filters" style="margin-bottom:1rem; display:flex; flex-wrap:wrap; gap:1rem; align-items:flex-end;">
@@ -80,7 +85,9 @@
         <tr>
           <th data-key="Company">Company</th>
           <th data-key="Date">Date</th>
+          <th data-key="Time">Time</th>
           <th data-key="Location">Location</th>
+          <th data-key="Industry">Industry</th>
           <th data-key="Round">Round</th>
           <th data-key="Amount ($M)">Amount (M$)</th>
           <th data-key="Lead Investor">Lead Investor</th>
@@ -91,10 +98,6 @@
       <tbody></tbody>
     </table>
 
-    <div class="chart">
-      <h2>Funding Amounts</h2>
-      <img src="vc_deals_chart.png" alt="Funding amounts bar chart" />
-    </div>
   </div>
 
   <script>
@@ -131,10 +134,20 @@
       tbody.innerHTML = '';
       rows.forEach(item => {
         const tr = document.createElement('tr');
-        [
-          'Company', 'Date', 'Location', 'Round', 'Amount ($M)',
-          'Lead Investor', 'Other Investors', 'Description'
-        ].forEach(key => {
+        // Define the order of columns for display
+        const displayColumns = [
+          'Company',
+          'Date',
+          'Time',
+          'Location',
+          'Industry',
+          'Round',
+          'Amount ($M)',
+          'Lead Investor',
+          'Other Investors',
+          'Description'
+        ];
+        displayColumns.forEach(key => {
           const td = document.createElement('td');
           const value = item[key];
           td.textContent = (value !== null && value !== undefined) ? value : '';
@@ -174,7 +187,8 @@
             (item['Company'] || '') + ' ' +
             (item['Lead Investor'] || '') + ' ' +
             (item['Other Investors'] || '') + ' ' +
-            (item['Round'] || '')
+            (item['Round'] || '') + ' ' +
+            (item['Industry'] || '')
           ).toLowerCase();
           return haystack.includes(query);
         }
