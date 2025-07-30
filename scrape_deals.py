@@ -1,4 +1,4 @@
-"""
+""
 Scrape the most recent venture capital deals from VC News Daily.
 
 This script pulls the 'Recent Venture Capital Financings' from the VC News
@@ -18,6 +18,7 @@ Example usage:
 
 import argparse
 import csv
+import os
 import re
 from datetime import datetime
 from urllib.parse import unquote
@@ -92,10 +93,33 @@ def extract_deal_info(article_url: str) -> dict:
     if others_match:
         other_investors = others_match.group(1).strip()
 
+    # Time: VC News Daily articles typically don't include a time stamp. Leave blank.
+    time_of_day = ''
+
+    # Guess the industry's category based on keywords in the description or title
+    industry = 'Other'
+    text = (description + ' ' + title).lower()
+    industry_keywords = {
+        'AI': ['ai', 'artificial intelligence'],
+        'Security': ['security', 'cyber', 'defense'],
+        'Health': ['health', 'biotech', 'pharma', 'medical'],
+        'FinTech': ['fintech', 'finance', 'payment', 'payments'],
+        'Data': ['data', 'cloud', 'database', 'infrastructure'],
+        'Video': ['video', 'stream'],
+        'Hardware': ['hardware', 'semiconductor', 'chip'],
+        'Robotics': ['robotics', 'robot'],
+    }
+    for ind, keys in industry_keywords.items():
+        if any(k in text for k in keys):
+            industry = ind
+            break
+
     return {
         'Company': unquote(company),
         'Date': date,
+        'Time': time_of_day,
         'Location': location,
+        'Industry': industry,
         'Round': round_type if round_type else '',
         'Amount ($M)': amount_m if amount_m is not None else '',
         'Lead Investor': lead_investor,
@@ -153,10 +177,39 @@ def scrape_recent_deals(limit: int = None) -> list:
 
 
 def write_csv(deals: list, output_path: str) -> None:
-    """Write list of deals to a CSV file."""
+    """Write list of deals to a CSV file.
+
+    This function preserves the time a deal was first recorded. If the
+    output CSV already exists, the function will read it and reuse the
+    ``Time`` field for any deal that appears again (matching on
+    Company, Date, Round and Amount). For new deals, ``Time`` will be
+    blank. Downstream scripts (e.g. ``update_dashboard.py``) can
+    populate blank ``Time`` fields with the current time when
+    generating the dashboard.
+    """
     if not deals:
         print("No deals scraped.")
         return
+
+    # Build a lookup of existing deal times if the file exists
+    existing_times = {}
+    if output_path and os.path.exists(output_path):
+        try:
+            with open(output_path, newline='', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    key = (row.get('Company'), row.get('Date'), row.get('Round'), row.get('Amount ($M)'))
+                    existing_times[key] = row.get('Time', '')
+        except Exception:
+            existing_times = {}
+
+    # Ensure Time field is preserved for existing deals
+    for deal in deals:
+        key = (deal.get('Company'), deal.get('Date'), deal.get('Round'), str(deal.get('Amount ($M)')))
+        if key in existing_times and existing_times[key]:
+            deal['Time'] = existing_times[key]
+        # else leave Time blank; update_dashboard will fill in later
+
     fieldnames = list(deals[0].keys())
     with open(output_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
