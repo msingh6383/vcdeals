@@ -1,4 +1,4 @@
-""
+"""
 Scrape the most recent venture capital deals from VC News Daily.
 
 This script pulls the 'Recent Venture Capital Financings' from the VC News
@@ -6,14 +6,13 @@ Daily front page, visits each individual article, and extracts key
 information such as company name, funding amount, round, date, lead
 investor(s) and other investors. It writes the results to a CSV file.
 
-Note: This is a basic scraper intended as a starting point. VC News Daily
-doesn't provide a formal API, so the structure of pages may change and
-parse logic may need adjustments over time. Always abide by the site's
-terms of use and robots.txt when scraping.
+Note: This is a basic scraper intended as a starting point. VC News Daily does not
+provide a formal API, so the structure of pages may change and parse logic may
+need adjustments over time. Always abide by the site's terms of use and
+robots.txt when scraping.
 
 Example usage:
     python scrape_deals.py --output vc_deals.csv
-
 """
 
 import argparse
