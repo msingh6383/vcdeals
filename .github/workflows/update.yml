@@ -1,5 +1,8 @@
 name: Update VC dashboard
 
+permissions:
+  contents: write
+
 on:
   schedule:
     # 6 AM Pacific (13:00 UTC)
